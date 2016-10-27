@@ -1,7 +1,7 @@
 package = "kong-segment-log"
 version = "1.0.0"
 source = {
-  url = "https://github.com/DigitalGlobe/kong-segment-log",
+  url = "git://github.com/DigitalGlobe/kong-segment-log",
   tag = "v1.0.0",
 }
 description = {
