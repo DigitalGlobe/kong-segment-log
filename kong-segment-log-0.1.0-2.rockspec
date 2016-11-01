@@ -1,8 +1,8 @@
 package = "kong-segment-log"
-version = "1.0.0"
+version = "0.1.0-2"
 source = {
   url = "git://github.com/DigitalGlobe/kong-segment-log",
-  tag = "v1.0.0",
+  tag = "v0.1.0-2",
 }
 description = {
   summary = "A Kong plugin that sends request logs to Segment track() API to track user activity.",

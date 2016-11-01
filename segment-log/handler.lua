@@ -47,6 +47,9 @@ end
 -- @param `name`  The name of this logging plugin. Used as prefix for any nginx log output from this function.
 local function log(premature, conf, body, name)
   if premature then return end
+  if not name then
+    name = 'segment-log'
+  end
   name = "["..name.."] "
 
   local ok, err
@@ -109,7 +112,7 @@ local function log(premature, conf, body, name)
       method = body.request.method,
       path = body.request.uri,
       uri = body.request.request_uri,
-      querystring = cjson.encode(basic_serializer.serialize(body.request.querystring)),
+      querystring = cjson.encode(body.request.querystring),
       timeOfProxy = body.latencies.proxy,
       timeOfKong = body.latencies.kong,
       timeOfRequest = body.latencies.request,
@@ -121,7 +124,7 @@ local function log(premature, conf, body, name)
     },
     timestamp = os.date("!%Y-%m-%dT%TZ", body.started_at / 1000)
   }
-  local track_body = cjson.encode(basic_serializer.serialize(track_data))
+  local track_body = cjson.encode(track_data)
 
   ok, err = sock:send(generate_http_payload('POST', parsed_url, 'Basic ' + base64.encode(conf.segment_write_key..':'), track_body))
   if not ok then
@@ -145,7 +148,7 @@ end
 -- @return html body as string
 function SegmentLogHandler:serialize(ngx)
   -- return cjson.encode(basic_serializer.serialize(ngx))
-  return ngx
+  return basic_serializer.serialize(ngx)
 end
 
 function SegmentLogHandler:log(conf)
