@@ -71,7 +71,7 @@ local function log(premature, conf, body, name)
     return
   end
 
-  local user_id = jwt[conf.jwt_payload_key__user_id]
+  local user_id = jwt.claims[conf.jwt_payload_key__user_id]
   if not user_id then
     ngx.log(ngx.ERR, name.."failed to find property `"..conf.jwt_payload_key__user_id.."` in decoded Authorization token payload.")
     return
