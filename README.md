@@ -12,12 +12,12 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
     ```
     {
         userId: 'abc123', // the user ID from the decoded JWT
-        event: 'POST /articles/*/comments', // `"<request_method> <request_path>"` (See `config.glob_event_name_paths`)
+        event: 'POST /articles/*/comments', // "<request_method> <request_path>" (See config.glob_event_name_paths)
         properties: {
             method: 'POST', // The HTTP method of the request
             path: '/articles/abc123/comments', // The path of the request
             uri: 'http://example.com/articles/abc123/comments', // The full URI of the request
-            querystring: '{"options": true}', // The JSON encoded querystring data as parsed by Kong.
+            querystring: '{"options": true}', // The JSON-encoded querystring data as parsed by Kong.
             timeOfProxy: 123, // In ms, from Kong's latencies.proxy
             timeOfKong: 45, // In ms, from Kong's latencies.kong
             timeOfRequest: 678, // In ms, from Kong's latencies.request
