@@ -5,12 +5,12 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
 ## Current Design
 
 * It expects incoming requests to contain a JWT in the Authorization header, and otherwise logs an error.
-* The JWT is decoded (not validated) to obtain the ID of the user making the request. (See `conf.jwt_payload_key__user_id`)
+* The JWT is decoded (not validated) to obtain the ID of the user making the request. (See `config.jwt_payload_key__user_id`)
 * A user event is sent to Segment's track() API with this data:
     ```
     {
         userId: 'abc123', // the user ID from the decoded JWT
-        event: 'POST /articles/*/comments', // `"<request_method> <request_path>"` (See `conf.glob_event_name_paths`)
+        event: 'POST /articles/*/comments', // `"<request_method> <request_path>"` (See `config.glob_event_name_paths`)
         properties: {
             method: 'POST', // The HTTP method of the request
             path: '/articles/abc123/comments', // The path of the request
@@ -59,8 +59,8 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
 
     Name | Type | Required | Default | Description / Notes
     ---- | ---- | -------- | ------- | -------------------
-    segment_write_key | string | yes | None | The "write key" for your Segment Source – comes from your segment source > Settings
-    jwt_payload_key__user_id | string | no | `"sub"` | The name of the property from the JWT payload whose value contains the user ID
-    glob_event_name_paths | boolean | no | `true` | Whether to glob routes containing numeric path components in the event name. If `true`, A POST request to `/articles/abc123/comments` will be tracked in Segment with the event name `POST /articles/*/comments`. If `false`, the event name will be `POST /articles/abc123/comments`. The original request path is always available in the Segment event's properties, as `path`.
-    timeout | number | no | `10000` | Timeout for the request to Segment
-    keepalive | number | no | `60000` | Keepalive for the request to Segment
+    config.segment_write_key | string | yes | None | The "write key" for your Segment Source – comes from your segment source > Settings
+    config.jwt_payload_key__user_id | string | no | `"sub"` | The name of the property from the JWT payload whose value contains the user ID
+    config.glob_event_name_paths | boolean | no | `true` | Whether to glob routes containing numeric path components in the event name. If `true`, A POST request to `/articles/abc123/comments` will be tracked in Segment with the event name `POST /articles/*/comments`. If `false`, the event name will be `POST /articles/abc123/comments`. The original request path is always available in the Segment event's properties, as `path`.
+    config.timeout | number | no | `10000` | Timeout for the request to Segment
+    config.keepalive | number | no | `60000` | Keepalive for the request to Segment
