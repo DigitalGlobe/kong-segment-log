@@ -131,11 +131,10 @@ local function log(premature, conf, body, name)
     ngx.log(ngx.ERR, name.."failed to send data to "..host..":"..tostring(port)..": ", err)
   end
 
-  local line, partial
-  line, err, partial = sock:receive()
-  if not line then
+  local data, partial
+  data, err, partial = sock:receive('*a')
+  if not data then
     ngx.log(ngx.ERR, name.."failed to receive data from "..host..":"..tostring(port)..": ", err, cjson.encode(partial))
-    return
   end
 
   ok, err = sock:setkeepalive(conf.keepalive)
