@@ -19,7 +19,7 @@ local HTTPS = "https"
 local function generate_http_payload(method, parsed_url, authorization, body)
   return string.format(
     "%s %s HTTP/1.1\r\nHost: %s\r\nConnection: Keep-Alive\r\nContent-Type: application/json\r\nContent-Length: %s\r\nAuthorization: %s\r\n\r\n%s",
-    method:upper(), parsed_url.path, parsed_url.host, authorization, string.len(body), body)
+    method:upper(), parsed_url.path, parsed_url.host, string.len(body), authorization, body)
 end
 
 -- Parse host url
@@ -129,12 +129,6 @@ local function log(premature, conf, body, name)
   ok, err = sock:send(generate_http_payload('POST', parsed_url, 'Basic '..base64.encode(conf.segment_write_key..':'), track_body))
   if not ok then
     ngx.log(ngx.ERR, name.."failed to send data to "..host..":"..tostring(port)..": ", err)
-  end
-
-  local data, partial
-  data, err, partial = sock:receive('*a')
-  if not data then
-    ngx.log(ngx.ERR, name.."failed to receive data from "..host..":"..tostring(port)..": ", err, cjson.encode(partial))
   end
 
   ok, err = sock:setkeepalive(conf.keepalive)
