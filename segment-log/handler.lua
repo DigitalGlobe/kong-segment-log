@@ -126,7 +126,7 @@ local function log(premature, conf, body, name)
   }
   local track_body = cjson.encode(track_data)
 
-  ok, err = sock:send(generate_http_payload('POST', parsed_url, 'Basic ' + base64.encode(conf.segment_write_key..':'), track_body))
+  ok, err = sock:send(generate_http_payload('POST', parsed_url, 'Basic '..base64.encode(conf.segment_write_key..':'), track_body))
   if not ok then
     ngx.log(ngx.ERR, name.."failed to send data to "..host..":"..tostring(port)..": ", err)
   end
