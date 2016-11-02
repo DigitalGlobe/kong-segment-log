@@ -31,23 +31,26 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
     }
     ```
 
-## Installation
+## Installation & Usage
 1. Install `kong-segment-log` via Luarocks
     ```
     $ luarocks install kong-segment-log
     ```
 1. Add the `segment-log` plugin to your Kong Configuration
+
     ##### Kong v0.9.x
     In `kong.conf`, list the `segment-log` plugin in your `custom_plugins` configuration, e.g.
     ```
     custom_plugins = segment-log,another-custom-plugin
     ```
+
     ##### Kong v0.6.x – v0.8.x
     In `kong.yml`, list the `segment-log` plugin under `custom_plugins`, e.g.
     ```
     custom_plugins:
       - segment-log
     ```
+
     ##### Kong v0.5.x
     In `kong.yml`, list the `segment-log` plugin under `plugins_available`, e.g.
     ```
