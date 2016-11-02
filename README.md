@@ -70,3 +70,17 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
     config.glob_event_name_paths | boolean | no | `true` | Whether to glob routes containing numeric path components in the event name. If `true`, A POST request to `/articles/abc123/comments` will be tracked in Segment with the event name `POST /articles/*/comments`. If `false`, the event name will be `POST /articles/abc123/comments`. The original request path is always available in the Segment event's properties, as `path`.
     config.timeout | number | no | `10000` | Timeout for the request to Segment, in ms
     config.keepalive | number | no | `60000` | Keepalive for the request to Segment, in ms
+
+## Example shell script for injecting the custom plugin into your configuration file.
+
+```
+# Check for custom plugin segment-log
+cat /etc/kong/kong.yml | grep "segment-log"
+if [ $? -eq 0 ]; then
+	echo "custom plugin segment-log already configured";
+else
+	echo "add custom plugin to kong.yml";
+	# This command inserts the text `  - segment-log` directly after the line containing `plugins_available:`.
+	sed -i '/plugins_available:/a \  - segment-log' /etc/kong/kong.yml
+fi
+```
