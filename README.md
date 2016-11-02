@@ -7,6 +7,7 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
 * It expects incoming requests to contain a JWT in the Authorization header, and otherwise logs an error.
 * The JWT is decoded (not validated) to obtain the ID of the user making the request. (See `config.jwt_payload_key__user_id`)
 * A user event is sent to Segment's track() API with this data:
+
     ```
     {
         userId: 'abc123', // the user ID from the decoded JWT
