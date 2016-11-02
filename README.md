@@ -28,6 +28,7 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
             userAgent: 'curl', // From the request's `User-Agent` header
         },
         timestamp: From Kong's `started_at`, converted to ISO8601 timestamp
+    }
     ```
 
 ## Installation
