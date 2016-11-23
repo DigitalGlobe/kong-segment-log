@@ -53,9 +53,9 @@ local function log(premature, conf, body, name)
   name = "["..name.."] "
 
   local ok, err
-  local parsed_url = parse_url('https://api.segment.io/v1/track')
-  local host = parsed_url.host
-  local port = tonumber(parsed_url.port)
+  local segment_url_parsed = parse_url('https://api.segment.io/v1/track')
+  local host = segment_url_parsed.host
+  local port = tonumber(segment_url_parsed.port)
 
   local authorization = body.request.headers.authorization
   if not authorization then
@@ -86,17 +86,41 @@ local function log(premature, conf, body, name)
     return
   end
 
-  if parsed_url.scheme == HTTPS then
+  if segment_url_parsed.scheme == HTTPS then
     local _, err = sock:sslhandshake(true, host, false)
     if err then
       ngx.log(ngx.ERR, name.."failed to do SSL handshake with "..host..":"..tostring(port)..": ", err)
     end
   end
 
-  local event_path = body.request.uri
-  if conf.glob_event_name_paths then
-    event_path = string.gsub(event_path, '[^/]*[0-9]+[^/]*', '*')
+  local function without_trailing_slash(uri)
+    return string.gsub(uri, '/$', '')
   end
+
+  local path = body.request.uri
+  if conf.strip_trailing_slash then
+    if path != '/' then
+      path = without_trailing_slash(path)
+    end
+    -- uri = without_trailing_slash(uri)
+  end
+
+  local kong_request_url_parsed = parse_url(body.request.request_uri)
+  local event_name = conf.event_name_template
+  event_name = string.gsub(event_name, '{method}', strupper(body.request.method))
+  event_name = string.gsub(event_name, '{host}', strlower(kong_request_url_parsed.host))
+  event_name = string.gsub(event_name, '{path}', strlower(path))
+
+  -- New feature: send each path component as a separate event property.
+  local path_components = {}
+  local num_path_components = 0
+  for token in string.gmatch(path, "[^/]*") do
+    num_path_components = num_path_components + 1
+    path_components[num_path_components] = token
+  end
+
+  -- Old flawed "globbing" logic -- was intended to replace any ID-like path segments with `*`.
+  -- event_path = string.gsub(event_path, '[^/]*[0-9]+[^/]*', '*')
 
   -- "authenticated_entity": {
   --       "consumer_id": "80f74eef-31b8-45d5-c525-ae532297ea8e",
@@ -107,12 +131,26 @@ local function log(premature, conf, body, name)
 
   local track_data = {
     userId = user_id,
-    event = body.request.method.." "..event_path,
+    event = event_name,
     properties = {
       method = body.request.method,
-      path = body.request.uri,
       uri = body.request.request_uri,
-      querystring = cjson.encode(body.request.querystring),
+      protocol = kong_request_url_parsed.scheme,
+      host = kong_request_url_parsed.host,
+      port = tonumber(kong_request_url_parsed.port),
+      path = body.request.uri,
+      pathComponent1 = path_components[1],
+      pathComponent2 = path_components[2],
+      pathComponent3 = path_components[3],
+      pathComponent4 = path_components[4],
+      pathComponent5 = path_components[5],
+      pathComponent6 = path_components[6],
+      pathComponent7 = path_components[7],
+      pathComponent8 = path_components[8],
+      pathComponent9 = path_components[9],
+      pathComponent10 = path_components[10],
+      querystring = body.request.querystring,
+      querystringJson = cjson.encode(body.request.querystring),
       timeOfProxy = body.latencies.proxy,
       timeOfKong = body.latencies.kong,
       timeOfRequest = body.latencies.request,
@@ -126,7 +164,7 @@ local function log(premature, conf, body, name)
   }
   local track_body = cjson.encode(track_data)
 
-  ok, err = sock:send(generate_http_payload('POST', parsed_url, 'Basic '..base64.encode(conf.segment_write_key..':'), track_body))
+  ok, err = sock:send(generate_http_payload('POST', segment_url_parsed, 'Basic '..base64.encode(conf.segment_write_key..':'), track_body))
   if not ok then
     ngx.log(ngx.ERR, name.."failed to send data to "..host..":"..tostring(port)..": ", err)
   end
