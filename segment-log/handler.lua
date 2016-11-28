@@ -99,7 +99,7 @@ local function log(premature, conf, body, name)
 
   local path = body.request.uri
   if conf.strip_trailing_slash then
-    if path != '/' then
+    if not (path == '/') then
       path = without_trailing_slash(path)
     end
     -- uri = without_trailing_slash(uri)
