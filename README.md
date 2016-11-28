@@ -19,7 +19,12 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
             protocol: 'https', // The protocol of the request
             host: 'example.com', // The host of the request
             port: 443, // The port of the request
-            path: '/articles/a123/comments', // The path of the request
+            rawpath: '/articles/a123/comments?a=2#there, // The full, raw path as returned by kong's body.request.uri
+            path: '/articles/a123/comments', // The path of the request (See config.strip_trailing_slash)
+            queryString: 'a=2',
+            queryObject: {a: '2'},
+            queryJson: '{"a": "2"}',
+            hash: 'there',
             pathComponent1: 'articles', // The first path component of the request
             pathComponent2: 'a123',
             pathComponent3: 'comments',
@@ -30,8 +35,6 @@ A [Kong](https://getkong.org) plugin that sends request logs to [Segment](https:
             pathComponent8: undefined,
             pathComponent9: undefined,
             pathComponent10: undefined,
-            querystring: {options: true}, // The querystring data as parsed by Kong.
-            querystringJson: '{"options": true}', // The JSON-encoded querystring data as parsed by Kong.
             timeOfProxy: 123, // In ms, from Kong's latencies.proxy
             timeOfKong: 45, // In ms, from Kong's latencies.kong
             timeOfRequest: 678, // In ms, from Kong's latencies.request

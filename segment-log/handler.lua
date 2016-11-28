@@ -97,7 +97,9 @@ local function log(premature, conf, body, name)
     return string.gsub(uri, '/$', '')
   end
 
-  local path = body.request.uri
+  local kong_request_url_parsed = parse_url(body.request.request_uri)
+
+  local path = kong_request_url_parsed.path
   if conf.strip_trailing_slash then
     if not (path == '/') then
       path = without_trailing_slash(path)
@@ -105,7 +107,6 @@ local function log(premature, conf, body, name)
     -- uri = without_trailing_slash(uri)
   end
 
-  local kong_request_url_parsed = parse_url(body.request.request_uri)
   local event_name = conf.event_name_template
   event_name = string.gsub(event_name, '{method}', string.upper(body.request.method))
   event_name = string.gsub(event_name, '{host}', string.lower(kong_request_url_parsed.host))
@@ -114,7 +115,8 @@ local function log(premature, conf, body, name)
   -- New feature: send each path component as a separate event property.
   local path_components = {}
   local num_path_components = 0
-  for token in string.gmatch(path, "[^/]*") do
+  event_name = string.gsub(event_name, '{path}', string.lower(path))
+  for token in string.gmatch(path, "[^/]+") do
     num_path_components = num_path_components + 1
     path_components[num_path_components] = token
   end
@@ -138,7 +140,12 @@ local function log(premature, conf, body, name)
       protocol = kong_request_url_parsed.scheme,
       host = kong_request_url_parsed.host,
       port = tonumber(kong_request_url_parsed.port),
-      path = body.request.uri,
+      rawpath = body.request.uri,
+      path = path,
+      queryString = kong_request_url_parsed.query,
+      queryObject = body.request.querystring,
+      queryJson = cjson.encode(body.request.querystring),
+      hash = kong_request_url_parsed.fragment,
       pathComponent1 = path_components[1],
       pathComponent2 = path_components[2],
       pathComponent3 = path_components[3],
@@ -149,8 +156,6 @@ local function log(premature, conf, body, name)
       pathComponent8 = path_components[8],
       pathComponent9 = path_components[9],
       pathComponent10 = path_components[10],
-      querystring = body.request.querystring,
-      querystringJson = cjson.encode(body.request.querystring),
       timeOfProxy = body.latencies.proxy,
       timeOfKong = body.latencies.kong,
       timeOfRequest = body.latencies.request,
