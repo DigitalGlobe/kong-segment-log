@@ -107,9 +107,9 @@ local function log(premature, conf, body, name)
 
   local kong_request_url_parsed = parse_url(body.request.request_uri)
   local event_name = conf.event_name_template
-  event_name = string.gsub(event_name, '{method}', strupper(body.request.method))
-  event_name = string.gsub(event_name, '{host}', strlower(kong_request_url_parsed.host))
-  event_name = string.gsub(event_name, '{path}', strlower(path))
+  event_name = string.gsub(event_name, '{method}', string.upper(body.request.method))
+  event_name = string.gsub(event_name, '{host}', string.lower(kong_request_url_parsed.host))
+  event_name = string.gsub(event_name, '{path}', string.lower(path))
 
   -- New feature: send each path component as a separate event property.
   local path_components = {}
